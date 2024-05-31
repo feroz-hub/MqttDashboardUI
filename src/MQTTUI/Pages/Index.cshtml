@@ -55,6 +55,12 @@
 <body>
 <div class="messages-container">
     <h2>MQTT Subscriber</h2>
+
+    <form method="post">
+        <label for="topic">Enter Topic:</label>
+        <input type="text" id="topic" name="topic" required>
+        <button type="submit">Subscribe</button>
+    </form>
     <h3>Messages</h3>
     <ul id="messagesList">
         @foreach (var message in Model.Messages)

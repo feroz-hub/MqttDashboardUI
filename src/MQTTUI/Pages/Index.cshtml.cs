@@ -13,6 +13,17 @@ public class IndexModel(MqttService mqttService) : PageModel
         Messages = [..mqttService.GetMessages()];
     }
 
+    public async Task<IActionResult> OnPostAsync(string topic)
+    {
+        if (!string.IsNullOrEmpty(topic))
+        {
+            await mqttService.SubscribeToTopic(topic);
+        }
+
+        Messages = mqttService.GetMessages().ToList();
+        return Page();
+    }
+
     public IActionResult OnGetMessages()
     {
         var messages = mqttService.GetMessages();
