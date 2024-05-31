@@ -1,0 +1,83 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "MQTT Subscriber";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .messages-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        .messages-container h3 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        #messagesList {
+            list-style-type: none;
+            padding: 0;
+        }
+        #messagesList li {
+            padding: 10px;
+            margin-bottom: 5px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            word-wrap: break-word;
+        }
+        #messagesList li:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+<div class="messages-container">
+    <h2>MQTT Subscriber</h2>
+    <h3>Messages</h3>
+    <ul id="messagesList">
+        @foreach (var message in Model.Messages)
+        {
+            <li>@message</li>
+        }
+    </ul>
+</div>
+</body>
+</html>
+<script>
+    async function fetchMessages() {
+        const response = await fetch('@Url.Page("/Index", "Messages")');
+        const messages = await response.json();
+        const messagesList = document.getElementById('messagesList');
+        messagesList.innerHTML = '';
+
+        messages.forEach(message => {
+            const li = document.createElement('li');
+            li.textContent = message;
+            messagesList.appendChild(li);
+        });
+    }
+
+    setInterval(fetchMessages, 500); 
+</script>

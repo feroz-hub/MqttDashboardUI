@@ -1,0 +1,6 @@
+﻿services:
+  mqttui:
+    image: mqttui
+    build:
+      context: .
+      dockerfile: MQTTUI/Dockerfile
