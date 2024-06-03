@@ -8,6 +8,7 @@ public class MqttService
 {
     private readonly IMqttClient _mqttClient;
     private readonly ConcurrentBag<string> _messages;
+    public readonly ConcurrentBag<string>  _subscribedTopics;
 
     private readonly MqttClientOptions _options;
     public MqttService()
@@ -15,6 +16,7 @@ public class MqttService
         var factory = new MqttFactory();
         _mqttClient = factory.CreateMqttClient();
         _messages = new ConcurrentBag<string>();
+        _subscribedTopics = new ConcurrentBag<string>();
 
         _options = new MqttClientOptionsBuilder()
             .WithTcpServer("localhost", 1883)
@@ -68,6 +70,7 @@ public class MqttService
         foreach (var topic in topics)
         {
             var sub = await _mqttClient.SubscribeAsync(topic);
+            _subscribedTopics.Add(topic);
             // Handle subscription result if needed
         }
     }
@@ -91,5 +94,9 @@ public class MqttService
     public IEnumerable<string> GetMessages()
     {
         return _messages;
+    }
+    public IEnumerable<string> GetSubscribedTopics()
+    {
+        return _subscribedTopics.Distinct();
     }
 }

@@ -9,68 +9,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"]</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        h2 {
-            color: #333;
-            text-align: center;
-            margin-top: 20px;
-        }
-        .messages-container {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 10px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-        }
-        .messages-container h3 {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-            color: #666;
-        }
-        #messagesList {
-            list-style-type: none;
-            padding: 0;
-        }
-        #messagesList li {
-            padding: 10px;
-            margin-bottom: 5px;
-            background-color: #fafafa;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            word-wrap: break-word;
-        }
-        #messagesList li:nth-child(odd) {
-            background-color: #f9f9f9;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/Index.css">
 </head>
 <body>
-<div class="messages-container">
-    <h2>MQTT Subscriber</h2>
+<div class="index-container">
+    <div class="index-sidebar">
+        <h3>Subscribed Topics (@Model.SubscribedTopics.Count())</h3>
+        <form method="post">
+            <label for="topic">Enter Topic:</label>
+            <input type="text" id="topic" name="topic" required>
+            <button type="submit">Subscribe</button>
+        </form>
 
-    <form method="post">
-        <label for="topic">Enter Topic:</label>
-        <input type="text" id="topic" name="topic" required>
-        <button type="submit">Subscribe</button>
-    </form>
-    <h3>Messages</h3>
-    <ul id="messagesList">
-        @foreach (var message in Model.Messages)
+        @if (Model.ErrorMessage != null)
         {
-            <li>@message</li>
+            <div class="error-message">@Model.ErrorMessage</div>
         }
-    </ul>
+
+        <ul>
+            @foreach (var topic in Model.SubscribedTopics)
+            {
+                <li>@topic <span>@Model.GetMessageCountForTopic(topic)</span></li>
+            }
+        </ul>
+    </div>
+    <div class="index-content">
+        <h2>MQTT Subscriber</h2>
+        <h3>Messages</h3>
+        <ul id="messagesList">
+            @foreach (var message in Model.Messages)
+            {
+                <li>@message</li>
+            }
+        </ul>
+    </div>
 </div>
 </body>
 </html>
+
 <script>
     async function fetchMessages() {
         const response = await fetch('@Url.Page("/Index", "Messages")');
