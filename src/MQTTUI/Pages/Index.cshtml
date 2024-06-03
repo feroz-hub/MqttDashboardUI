@@ -60,6 +60,27 @@
             messagesList.appendChild(li);
         });
     }
+    async function fetchSubscribedTopics() {
+        const response = await fetch('@Url.Page("/Index", "SubscribedTopics")');
+        const topics = await response.json();
+        const topicsList = document.querySelector('.index-sidebar ul');
+        topicsList.innerHTML = '';
 
-    setInterval(fetchMessages, 500); 
-</script>
+        topics.forEach(topic => {
+            const li = document.createElement('li');
+            li.innerHTML = `${topic} <span>${getMessageCountForTopic(topic)}</span>`;
+            topicsList.appendChild(li);
+        });
+    }
+    
+
+    async function getMessageCountForTopic(topic) {
+        const response = await fetch(`@Url.Page("/Index", "MessageCountForTopic")?topic=${topic}`);
+        const count = await response.json();
+        return count;
+    }
+
+    setInterval(() => {
+        fetchMessages();
+        fetchSubscribedTopics();
+    }, 500); </script>

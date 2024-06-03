@@ -6,9 +6,9 @@ namespace MQTTUI.Pages;
 public class IndexModel(MqttService mqttService) : PageModel
 {
 
-    public List<string> Messages { get; private set; }
-    public List<string> SubscribedTopics { get; private set; }
-    public string ErrorMessage { get; private set; }
+    public List<string> Messages { get; set; }
+    public List<string> SubscribedTopics { get; set; }
+    public string ErrorMessage { get; set; }
     public void OnGet()
     {
         Messages = [..mqttService.GetMessages()];
@@ -44,5 +44,11 @@ public class IndexModel(MqttService mqttService) : PageModel
     public int GetMessageCountForTopic(string topic)
     {
         return mqttService.GetMessages().Count(m => m.Contains(topic));
+    }
+
+    public IActionResult OnGetMessageCountForTopic(string topic)
+    {
+        var count = GetMessageCountForTopic(topic);
+        return new JsonResult(count);
     }
 }

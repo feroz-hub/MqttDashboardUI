@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using MQTTnet;
 using MQTTnet.Client;
+using MQTTnet.Server;
 
 namespace MQTTUI;
 
@@ -18,6 +19,7 @@ public class MqttService
         _messages = new ConcurrentBag<string>();
         _subscribedTopics = new ConcurrentBag<string>();
 
+        
         _options = new MqttClientOptionsBuilder()
             .WithTcpServer("localhost", 1883)
             .WithClientId("Client2_Subscriber")
@@ -84,6 +86,7 @@ public class MqttService
         if (IsConnected)
         {
             await _mqttClient.SubscribeAsync(topic);
+            _subscribedTopics.Add(topic);
         }
         else
         {
@@ -99,4 +102,5 @@ public class MqttService
     {
         return _subscribedTopics.Distinct();
     }
+    
 }
