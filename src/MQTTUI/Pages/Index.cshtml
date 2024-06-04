@@ -14,34 +14,51 @@
 <body>
 <div class="index-container">
     <div class="index-sidebar">
+        <h3>MQTT Menu</h3>
+        <div class="dropdown">
+            <button class="dropbtn">Menu</button>
+            <div class="dropdown-content">
+                <a href="#" onclick="showSection('messages')">Messages</a>
+                <a href="#" onclick="showSection('clients')">Clients</a>
+                <a href="#" onclick="showSection('connection')">Connection</a>
+            </div>
+        </div>
         <h3>Subscribed Topics (@Model.SubscribedTopics.Count())</h3>
         <form method="post">
             <label for="topic">Enter Topic:</label>
             <input type="text" id="topic" name="topic" required>
             <button type="submit">Subscribe</button>
         </form>
-
         @if (Model.ErrorMessage != null)
         {
-            <div class="error-message">@Model.ErrorMessage</div>
+        <div class="error-message">@Model.ErrorMessage</div>
         }
-
-        <ul>
+        <ul id="subscribedTopicsList">
             @foreach (var topic in Model.SubscribedTopics)
             {
-                <li>@topic <span>@Model.GetMessageCountForTopic(topic)</span></li>
+            <li data-topic="@topic">@topic <span id="count-@topic.Replace("/", "_")">@Model.GetMessageCountForTopic(topic)</span></li>
             }
         </ul>
     </div>
     <div class="index-content">
         <h2>MQTT Subscriber</h2>
-        <h3>Messages</h3>
-        <ul id="messagesList">
-            @foreach (var message in Model.Messages)
-            {
+        <div id="messages-section" class="section">
+            <h3>Messages</h3>
+            <ul id="messagesList">
+                @foreach (var message in Model.Messages)
+                {
                 <li>@message</li>
-            }
-        </ul>
+                }
+            </ul>
+        </div>
+        <div id="clients-section" class="section" style="display: none;">
+            <h3>Clients</h3>
+            <p>Client details will be shown here.</p>
+        </div>
+        <div id="connection-section" class="section" style="display: none;">
+            <h3>Connection</h3>
+            <p>Connection details will be shown here.</p>
+        </div>
     </div>
 </div>
 </body>
@@ -53,26 +70,35 @@
         const messages = await response.json();
         const messagesList = document.getElementById('messagesList');
         messagesList.innerHTML = '';
-
         messages.forEach(message => {
             const li = document.createElement('li');
             li.textContent = message;
             messagesList.appendChild(li);
         });
     }
+
     async function fetchSubscribedTopics() {
         const response = await fetch('@Url.Page("/Index", "SubscribedTopics")');
         const topics = await response.json();
-        const topicsList = document.querySelector('.index-sidebar ul');
+        const topicsList = document.getElementById('subscribedTopicsList');
         topicsList.innerHTML = '';
-
         topics.forEach(topic => {
+            const topicId = topic.replace(/\//g, "_");
             const li = document.createElement('li');
-            li.innerHTML = `${topic} <span>${getMessageCountForTopic(topic)}</span>`;
+            li.dataset.topic = topic;
+            li.innerHTML = `${topic} <span id="count-${topicId}">${getMessageCountForTopic(topic)}</span>`;
             topicsList.appendChild(li);
         });
     }
-    
+
+    async function updateMessageCountForTopics() {
+        const topicsList = document.getElementById('subscribedTopicsList');
+        const topics = Array.from(topicsList.children).map(li => li.dataset.topic);
+        for (const topic of topics) {
+            const count = await getMessageCountForTopic(topic);
+            document.getElementById(`count-${topic.replace(/\//g, "_")}`).textContent = count;
+        }
+    }
 
     async function getMessageCountForTopic(topic) {
         const response = await fetch(`@Url.Page("/Index", "MessageCountForTopic")?topic=${topic}`);
@@ -80,7 +106,14 @@
         return count;
     }
 
+    function showSection(section) {
+        document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+        document.getElementById(section + '-section').style.display = 'block';
+    }
+
     setInterval(() => {
         fetchMessages();
         fetchSubscribedTopics();
-    }, 500); </script>
+        updateMessageCountForTopics();
+    }, 500);
+    </script>
