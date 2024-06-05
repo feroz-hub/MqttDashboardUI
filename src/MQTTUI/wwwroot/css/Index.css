@@ -11,8 +11,16 @@ body {
     color: white;
     padding: 20px;
 }
-.index-sidebar h3, .index-content h2, .index-content h3 {
-    color: #fff;
+.index-sidebar h3, 
+.index-content h2{
+    color: #00bfff;
+}
+.index-color{
+    color: #00bc8c;
+}
+
+.index-content h3 {
+    color: #333333;
 }
 .index-sidebar ul {
     list-style: none;
